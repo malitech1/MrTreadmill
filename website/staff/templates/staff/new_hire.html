@@ -1,0 +1,53 @@
+{% extends 'staff/base.html' %}
+{% block title %}Start New Hire{% endblock %}
+
+{% block content %}
+<h1>Start New Hire for {{ machine.brand }} {{ machine.model }}</h1>
+
+<form method="post">
+    {% csrf_token %}
+
+    <!-- Existing customer selector -->
+    <div id="existing-customer">
+        <label for="customer">Select Existing Customer:</label>
+        <select name="customer">
+            <option value="">-- Choose Customer --</option>
+            {% for c in customers %}
+                <option value="{{ c.id }}">{{ c.first_name }} ({{ c.phone }})</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <p><a href="#" onclick="toggleNewCustomer(); return false;">➕ Add New Customer</a></p>
+
+    <!-- New customer fields (hidden by default) -->
+    <div id="new-customer" style="display:none; border:1px solid #ccc; padding:10px; margin-bottom:10px;">
+        <h3>New Customer Details</h3>
+        <input type="hidden" name="add_customer" value="1">
+        <label>First Name:</label><input type="text" name="first_name"><br>
+        <label>Phone:</label><input type="text" name="phone"><br>
+        <label>Email:</label><input type="email" name="email"><br>
+        <label>Address:</label><input type="text" name="address"><br>
+    </div>
+
+    <label>Start Date:</label>
+    <input type="date" name="start_date" required><br><br>
+
+    <label>Due Date:</label>
+    <input type="date" name="due_date" required><br><br>
+
+    <label>Notes:</label>
+    <textarea name="notes"></textarea><br><br>
+
+    <button type="submit">Confirm Hire</button>
+</form>
+
+<p><a href="{% url 'staff:rental_detail' machine.id %}">Cancel</a></p>
+
+<script>
+function toggleNewCustomer() {
+    document.getElementById("new-customer").style.display =
+        document.getElementById("new-customer").style.display === "none" ? "block" : "none";
+}
+</script>
+{% endblock %}

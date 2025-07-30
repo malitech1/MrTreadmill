@@ -1,0 +1,64 @@
+{% extends 'staff/base.html' %}
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<h1>
+    👤 {{ profile.user.get_full_name }} ({{ profile.position }})
+    <span id="live-time" style="float: right; font-weight: normal; font-size: 16px; color: #555;"></span>
+</h1>
+<p>Username: {{ profile.user.username }}</p>
+<hr>
+
+<h2>📜 Recent Activity</h2>
+<ul>
+{% for activity in recent_activities %}
+    <li>{{ activity.timestamp|date:"d M H:i" }} - {{ activity.action }}</li>
+{% empty %}
+    <li>No recent activity.</li>
+{% endfor %}
+</ul>
+
+<hr>
+
+<h2>🕒 Timesheet</h2>
+<table border="1" cellpadding="5">
+    <tr><th>Date</th><th>Hours Worked</th></tr>
+    {% for t in timesheets %}
+    <tr>
+        <td>{{ t.date }}</td>
+        <td>{{ t.hours_worked }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="2">No timesheet entries.</td></tr>
+    {% endfor %}
+</table>
+
+<hr>
+
+<h2>💰 Expenses</h2>
+<table border="1" cellpadding="5">
+    <tr><th>Date</th><th>Description</th><th>Amount</th></tr>
+    {% for e in expenses %}
+    <tr>
+        <td>{{ e.date }}</td>
+        <td>{{ e.description }}</td>
+        <td>${{ e.amount }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="3">No expenses logged.</td></tr>
+    {% endfor %}
+</table>
+<h3>Add New Expense</h3>
+<form method="post">
+    {% csrf_token %}
+    {{ expense_form.as_p }}
+    <button type="submit">Add Expense</button>
+</form>
+<script>
+    function updateTime() {
+        document.getElementById('live-time').textContent = new Date().toLocaleTimeString();
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+</script>
+{% endblock %}

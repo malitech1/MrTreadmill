@@ -1,0 +1,43 @@
+{% extends 'staff/base.html' %}
+{% block title %}Machine Details{% endblock %}
+
+{% block content %}
+<h1>{{ machine.brand }} {{ machine.model }} ({{ machine.serial_number }})</h1>
+
+<p><strong>Status:</strong> {{ machine.status }}</p>
+<p><strong>Condition:</strong> {{ machine.condition }}</p>
+<p><strong>Location:</strong> {{ machine.location }}</p>
+<p><strong>Notes:</strong> {{ machine.notes }}</p>
+<p><strong>Value Tier:</strong> {{ machine.value_tier }}</p>
+
+{% if machine.specification %}
+    <h3>Specification</h3>
+    <p><strong>Motor:</strong> {{ machine.specification.motor_model }}</p>
+    <p><strong>LCB:</strong> {{ machine.specification.lcb_model }}</p>
+    <p><strong>Belt Size:</strong> {{ machine.specification.running_belt_size }}</p>
+    <p><a href="{% url 'staff:spec_detail' machine.specification.id %}">View full spec</a></p>
+{% endif %}
+
+<p><a href="{% url 'staff:rental_edit' machine.id %}">Edit Machine</a></p>
+<p><img src="{% url 'staff:rental_qr' machine.id %}" alt="QR Code"></p>
+
+<h2>Service History</h2>
+<ul>
+    {% for job in service_history %}
+        <li>{{ job.date_created }} – {{ job.status }} – {{ job.notes|default:"(no notes)" }}</li>
+    {% empty %}
+        <li>No service history.</li>
+    {% endfor %}
+</ul>
+
+<h2>Rental History</h2>
+<ul>
+    {% for rental in rental_history %}
+        <li>{{ rental.start_date }} to {{ rental.return_date|default:"Present" }} – {{ rental.customer.name }}</li>
+    {% empty %}
+        <li>No rental history.</li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'staff:new_hire' machine.id %}" class="btn btn-primary">➕ Start New Hire</a>
+{% endblock %}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% extends 'staff/base.html' %}
+    {% block title %}Edit Rental Machine{% endblock %}
+
+    {% block content %}
+    {% endblock %}
+
+</head>
+<body>
+    <h1>Edit Machine: {{ machine.serial_number }}</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        <label>Status:</label>
+        <select name="status">
+            {% for value, label in machine._meta.get_field('status').choices %}
+                <option value="{{ value }}" {% if machine.status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label>Location:</label>
+        <input type="text" name="location" value="{{ machine.location }}"><br><br>
+
+        <label>Notes:</label><br>
+        <textarea name="notes" rows="4" cols="50">{{ machine.notes }}</textarea><br><br>
+
+        <label>Condition:</label>
+        <input type="text" name="condition" value="{{ machine.condition }}"><br><br>
+
+        <label>Value Tier:</label>
+        <select name="value_tier">
+            {% for value, label in machine._meta.get_field('value_tier').choices %}
+                <option value="{{ value }}" {% if machine.value_tier == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <button type="submit">Save Changes</button>
+    </form>
+
+    <p><a href="{% url 'staff:rental_detail' machine.id %}">Cancel and go back</a></p>
+</body>
+</html>

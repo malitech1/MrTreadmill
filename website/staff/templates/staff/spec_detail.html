@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+{% extends 'staff/base.html' %}
+{% block content %}
+<html>
+<head>
+    <title>Machine Specification</title>
+</head>
+<body>
+    <h1>Specification: {{ spec.brand }} {{ spec.model }}</h1>
+
+    <ul>
+        <li><strong>Motor:</strong> {{ spec.motor_model }}</li>
+        <li><strong>LCB:</strong> {{ spec.lcb_model }}</li>
+        <li><strong>Running Belt Size:</strong> {{ spec.running_belt_size }}</li>
+        <li><strong>Bolt Types:</strong> {{ spec.bolt_types }}</li>
+        <li><strong>Incline Motor:</strong> {{ spec.incline_motor }}</li>
+        <li><strong>Speed Sensor:</strong> {{ spec.speed_sensor }}</li>
+        <li><strong>Lubricant Type:</strong> {{ spec.lubricant_type }}</li>
+        <li><strong>Voltage Rating:</strong> {{ spec.voltage_rating }}</li>
+        <li><strong>Current Rating:</strong> {{ spec.current_rating }}</li>
+        <li><strong>Notes:</strong> {{ spec.notes }}</li>
+    </ul>
+
+    {% if spec.image %}
+        <img src="{{ spec.image.url }}" alt="Machine Image" style="max-width: 400px;">
+    {% endif %}
+
+    {% if spec.manual_file %}
+        <p><a href="{{ spec.manual_file.url }}" download>Download Manual</a></p>
+    {% endif %}
+    <p>
+        <a href="{% url 'staff:spec_search' %}" class="btn btn-secondary">🔍 Back to Search</a>
+        <a href="{% url 'staff:dashboard' %}" class="btn btn-secondary">🏠 Back to Dashboard</a>
+        <a href="{% url 'staff:spec_edit' spec.id %}" class="btn btn-warning">✏️ Edit Spec</a>
+    </p>
+
+    <a href="{% url 'staff:spec_search' %}">Back to Search</a>
+    <p><a href="{% url 'staff:dashboard' %}">Back to Dashboard</a></p>
+</body>
+</html>
+{% endblock %}

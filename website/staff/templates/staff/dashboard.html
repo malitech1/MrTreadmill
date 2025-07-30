@@ -1,0 +1,132 @@
+{% extends 'staff/base.html' %}
+{% load static %}
+
+{% block content %}
+<h2>Rental Machine Dashboard</h2>
+
+<div style="display:flex; gap:20px; margin-bottom:20px;">
+    <div style="padding:10px; background:#e8f5e9; border-radius:6px;">
+        <strong>Available:</strong> {{ status_summary.available|default:0 }}
+    </div>
+    <div style="padding:10px; background:#fff3e0; border-radius:6px;">
+        <strong>Out on Rent:</strong> {{ status_summary.rented|default:0 }}
+    </div>
+    <div style="padding:10px; background:#ffebee; border-radius:6px;">
+        <strong>Maintenance:</strong> {{ status_summary.maintenance|default:0 }}
+    </div>
+</div>
+
+<!-- Search and Filters -->
+<form method="get" class="filter-form">
+    <input type="text" name="q" placeholder="Search..." value="{{ q }}">
+
+    <select name="status">
+        <option value="">All Statuses</option>
+        <option value="available" {% if status == 'available' %}selected{% endif %}>Available</option>
+        <option value="rented" {% if status == 'rented' %}selected{% endif %}>Rented</option>
+        <option value="maintenance" {% if status == 'maintenance' %}selected{% endif %}>Maintenance</option>
+        <option value="retired" {% if status == 'retired' %}selected{% endif %}>Retired</option>
+    </select>
+
+    <select name="tier">
+        <option value="">All Value Tiers</option>
+        <option value="low" {% if tier == 'low' %}selected{% endif %}>Low</option>
+        <option value="medium" {% if tier == 'medium' %}selected{% endif %}>Medium</option>
+        <option value="high" {% if tier == 'high' %}selected{% endif %}>High</option>
+        <option value="commercial" {% if tier == 'commercial' %}selected{% endif %}>Commercial</option>
+    </select>
+
+    <button type="submit">Filter</button>
+</form>
+
+<!-- Table -->
+<table border="1" class="dashboard-table">
+    <thead>
+        <tr>
+            <th>Serial</th>
+            <th>Brand</th>
+            <th>Model</th>
+            <th>Status</th>
+            <th>Value Tier</th>
+            <th>Location</th>
+            <th>Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for machine in machines %}
+        <tr>
+            <!-- ✅ Clickable serial number -->
+            <td>
+                <a href="{% url 'staff:rental_detail' machine.id %}">
+                    {{ machine.serial_number }}
+                </a>
+            </td>
+            <td>{{ machine.brand }}</td>
+            <td>{{ machine.model }}</td>
+
+            <!-- Status dropdown -->
+            <td>
+                <select class="quick-edit" data-id="{{ machine.id }}" data-field="status">
+                    <option value="available" {% if machine.status == 'available' %}selected{% endif %}>Available</option>
+                    <option value="rented" {% if machine.status == 'rented' %}selected{% endif %}>Rented</option>
+                    <option value="maintenance" {% if machine.status == 'maintenance' %}selected{% endif %}>Maintenance</option>
+                    <option value="retired" {% if machine.status == 'retired' %}selected{% endif %}>Retired</option>
+                </select>
+            </td>
+
+            <!-- Value tier dropdown -->
+            <td>
+                <select class="quick-edit" data-id="{{ machine.id }}" data-field="value_tier">
+                    <option value="low" {% if machine.value_tier == 'low' %}selected{% endif %}>Low</option>
+                    <option value="medium" {% if machine.value_tier == 'medium' %}selected{% endif %}>Medium</option>
+                    <option value="high" {% if machine.value_tier == 'high' %}selected{% endif %}>High</option>
+                    <option value="commercial" {% if machine.value_tier == 'commercial' %}selected{% endif %}>Commercial</option>
+                </select>
+            </td>
+
+            <td>{{ machine.location }}</td>
+
+            <!-- Notes editable field -->
+            <td>
+                <input type="text" class="quick-edit-input" data-id="{{ machine.id }}" data-field="notes"
+                       value="{{ machine.notes }}">
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+function quickEditSave(element, field, value, id) {
+    fetch(`/staff/rental/${id}/quickedit/`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ field: field, value: value })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            element.style.border = "2px solid green";
+            setTimeout(() => element.style.border = "", 1000);
+        } else {
+            element.style.border = "2px solid red";
+        }
+    });
+}
+
+document.querySelectorAll(".quick-edit").forEach(select => {
+    select.addEventListener("change", function() {
+        quickEditSave(this, this.dataset.field, this.value, this.dataset.id);
+    });
+});
+
+document.querySelectorAll(".quick-edit-input").forEach(input => {
+    input.addEventListener("blur", function() {
+        quickEditSave(this, this.dataset.field, this.value, this.dataset.id);
+    });
+});
+</script>
+{% endblock %}

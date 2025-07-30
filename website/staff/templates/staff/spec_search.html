@@ -1,0 +1,31 @@
+{% extends 'staff/base.html' %}
+{% block content %}
+
+<h2>Machine Specifications Search</h2>
+
+<form method="get">
+    <input type="text" name="q" placeholder="Search model or brand..." value="{{ q }}">
+    <button type="submit">Search</button>
+</form>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>Brand</th>
+            <th>Model</th>
+            <th>Motor</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for spec in specs %}
+        <tr>
+            <td>{{ spec.brand }}</td>
+            <td>{{ spec.model }}</td>
+            <td>{{ spec.motor }}</td>
+            <td><a href="{% url 'staff:spec_detail' spec.id %}">View Details</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
