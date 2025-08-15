@@ -1,0 +1,38 @@
+{% extends 'staff/base.html' %}
+{% block title %}Service Job {{ job.id }}{% endblock %}
+
+{% block content %}
+<h2>Service Job #{{ job.id }}</h2>
+
+<p><strong>Who:</strong>
+  {% if job.customer %}
+    Customer – {{ job.customer.first_name }} {{ job.customer.last_name }}
+  {% else %}
+    Company
+  {% endif %}
+</p>
+
+<p><strong>Machine:</strong>
+  {% if job.rental_machine %}
+    {{ job.rental_machine.brand }} {{ job.rental_machine.model }} ({{ job.rental_machine.serial_number }})
+  {% elif job.treadmill %}
+    {{ job.treadmill.brand }} {{ job.treadmill.model }} ({{ job.treadmill.serial_number }})
+  {% else %}
+    <em>Not specified</em>
+  {% endif %}
+</p>
+
+<p><strong>Booking date:</strong> {{ job.booking_date|default:"—" }}</p>
+<p><strong>Confirmed:</strong> {% if job.confirmed %}Yes{% else %}No{% endif %}</p>
+<p><strong>Status:</strong> {{ job.get_status_display }}</p>
+<p><strong>Created:</strong> {{ job.date_created }}</p>
+{% if job.date_completed %}<p><strong>Completed:</strong> {{ job.date_completed }}</p>{% endif %}
+
+<p><strong>Notes:</strong><br>{{ job.notes|linebreaksbr }}</p>
+
+<p>
+  <img src="{% url 'staff:service_job_qr' job.id %}" alt="QR">
+</p>
+
+<p><a href="{% url 'staff:service_jobs' %}">← Back to jobs</a></p>
+{% endblock %}

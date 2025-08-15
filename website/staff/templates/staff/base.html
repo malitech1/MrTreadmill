@@ -37,23 +37,38 @@
 
 <div class="navbar">
     <div class="nav-left">
-        <a href="{% url 'staff:dashboard' %}"> Dashboard</a>
-        <a href="/admin/"> Admin</a>
-        <a href="{% url 'staff:spec_search' %}">Machine Specs</a>
+        <a href="{% url 'staff:dashboard' %}">Dashboard</a>
+        <a href="{% url 'staff:spec_search' %}">Documentation</a>
+        <a href="{% url 'staff:inventory' %}">Inventory</a>
+        <a href="{% url 'staff:service_jobs' %}">Service</a>
     </div>
     <div class="nav-right">
-    {% if user.is_authenticated %}
-        <a href="{% url 'staff:profile' %}"> <span>{{ user.username }}</span> </a>
-
-        <a href="{% url 'logout' %}">Logout</a>
-    {% else %}
-        <a href="{% url 'login' %}">Login</a>
-    {% endif %}
-</div>
+        {% if user.is_authenticated %}
+            <a href="{% url 'staff:profile' %}">{{ user.username }}</a>
+            {% if user.is_staff or user.is_superuser %}
+                <a href="{% url 'admin:index' %}">Admin</a>
+            {% endif %}
+            <a href="{% url 'logout' %}">Logout</a>
+        {% else %}
+            <a href="{% url 'login' %}">Login</a>
+        {% endif %}
+    </div>
 </div>
 
 <div class="container">
     <div class="content">
+        {% if messages %}
+          <ul style="list-style:none; padding:0; margin:0 0 12px 0;">
+            {% for message in messages %}
+              <li style="padding:8px 12px; border-radius:6px; margin-bottom:6px;
+                         {% if message.tags == 'success' %}background:#e8f5e9; color:#2e7d32;
+                         {% elif message.tags == 'error' %}background:#ffebee; color:#c62828;
+                         {% else %}background:#e3f2fd; color:#1565c0;{% endif %}">
+                {{ message }}
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
         {% block content %}{% endblock %}
     </div>
 </div>

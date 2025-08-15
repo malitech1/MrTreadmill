@@ -30,9 +30,12 @@ class RentalRecordAdmin(admin.ModelAdmin):
 
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
-    list_display = ('treadmill', 'status', 'date_created')
-    list_filter = ('status',)
-    search_fields = ('treadmill__serial_number',)
+    list_display = ('id', 'rental_machine', 'customer', 'status', 'booking_date', 'confirmed', 'date_created')
+    list_filter = ('status', 'confirmed', 'booking_date', 'date_created')
+    search_fields = ('rental_machine__serial_number', 'rental_machine__brand', 'rental_machine__model',
+                     'customer__first_name', 'customer__last_name', 'external_brand', 'external_model',
+                     'external_serial')
+    ordering = ('-date_created',)
 
 @admin.register(Part)
 class PartAdmin(admin.ModelAdmin):
@@ -43,6 +46,8 @@ class PartAdmin(admin.ModelAdmin):
 class PartUsageAdmin(admin.ModelAdmin):
     list_display = ('part', 'quantity_used', 'job', 'date_used')
     list_filter = ('date_used',)
+
+
 
 admin.site.register(StaffProfile)
 admin.site.register(ActivityLog)

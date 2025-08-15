@@ -1,0 +1,18 @@
+{% extends 'staff/base.html' %}
+{% block content %}
+<h2>Add Rental Machine</h2>
+<form method="post">
+    {% csrf_token %}
+    <label>Brand:</label><input type="text" name="brand"><br>
+    <label>Model:</label><input type="text" name="model"><br>
+    <label>Serial Number:</label><input type="text" name="serial_number"><br>
+    <label>Status:</label>
+    <select name="status">
+        <option value="available">Available</option>
+        <option value="rented">Rented</option>
+        <option value="maintenance">Maintenance</option>
+        <option value="retired">Retired</option>
+    </select><br>
+    <button type="submit">Save</button>
+</form>
+{% endblock %}

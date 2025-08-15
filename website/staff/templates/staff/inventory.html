@@ -1,0 +1,95 @@
+{% extends 'staff/base.html' %}
+{% block title %}Inventory{% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+  <h2>Inventory</h2>
+  <form method="get" style="display:flex; gap:8px; align-items:center;">
+    <input type="text" name="q" placeholder="🔍 Search machines & parts..." value="{{ q|default:'' }}"
+           style="padding:6px; min-width:240px;">
+    <button type="submit" style="padding:6px 12px; background:#2196f3; color:#fff; border:none; border-radius:4px;">Search</button>
+  </form>
+</div>
+
+<!-- Machines -->
+<h3 style="margin-top:8px;">Machines</h3>
+<div style="overflow-x:auto; margin-bottom:16px;">
+<table style="width:100%; border-collapse:collapse; background:white;">
+  <thead style="background:#f5f5f5;">
+    <tr>
+      <th style="padding:8px; text-align:left;">Brand</th>
+      <th style="padding:8px; text-align:left;">Model</th>
+      <th style="padding:8px; text-align:left;">Serial</th>
+      <th style="padding:8px; text-align:left;">Status</th>
+      <th style="padding:8px; text-align:left;">Location</th>
+      <th style="padding:8px; text-align:center;">QR</th>
+      <th style="padding:8px; text-align:left;">View</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for m in machines %}
+    <tr style="border-bottom:1px solid #ddd;">
+      <td style="padding:8px;">{{ m.brand }}</td>
+      <td style="padding:8px;">{{ m.model }}</td>
+      <td style="padding:8px;">{{ m.serial_number }}</td>
+      <td style="padding:8px;">{{ m.status }}</td>
+      <td style="padding:8px;">{{ m.location }}</td>
+      <td style="padding:8px; text-align:center;">
+        {% if m.id %}
+        <a href="{% url 'staff:rental_detail' m.id %}">
+          <img src="{% url 'staff:rental_qr' m.id %}" alt="QR" width="50" height="50"
+               style="border:1px solid #ccc; border-radius:4px;">
+        </a>
+        {% else %}<span style="color:#999;">N/A</span>{% endif %}
+      </td>
+      <td style="padding:8px;">
+        <a href="{% url 'staff:rental_detail' m.id %}">Open</a>
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="7" style="padding:12px; text-align:center; color:#777;">No machines found.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<!-- Parts -->
+<h3>Parts</h3>
+<div style="overflow-x:auto;">
+<table style="width:100%; border-collapse:collapse; background:white;">
+  <thead style="background:#f5f5f5;">
+    <tr>
+      <th style="padding:8px; text-align:left;">Part</th>
+      <th style="padding:8px; text-align:left;">Part #</th>
+      <th style="padding:8px; text-align:left;">In Stock</th>
+      <th style="padding:8px; text-align:left;">Location</th>
+      <th style="padding:8px; text-align:left;">Compatible Models</th>
+      <th style="padding:8px; text-align:center;">QR (Take)</th>
+      <th style="padding:8px; text-align:left;">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for p in parts %}
+    <tr style="border-bottom:1px solid #ddd;">
+      <td style="padding:8px;">{{ p.name }}</td>
+      <td style="padding:8px;">{{ p.part_number }}</td>
+      <td style="padding:8px;">{{ p.quantity_in_stock }}</td>
+      <td style="padding:8px;">{{ p.location|default:"" }}</td>
+      <td style="padding:8px; max-width:360px;">{{ p.compatible_models|default:"" }}</td>
+      <td style="padding:8px; text-align:center;">
+        <a href="{% url 'staff:part_take' p.id %}">
+          <img src="{% url 'staff:part_qr' p.id %}" alt="QR" width="50" height="50"
+               style="border:1px solid #ccc; border-radius:4px;">
+        </a>
+      </td>
+      <td style="padding:8px;">
+        <a href="{% url 'staff:part_take' p.id %}">Take</a>
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="7" style="padding:12px; text-align:center; color:#777;">No parts found.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

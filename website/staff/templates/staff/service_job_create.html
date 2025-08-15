@@ -1,0 +1,102 @@
+{% extends 'staff/base.html' %}
+{% block title %}New Service Job{% endblock %}
+
+{% block content %}
+<h2>New Service Job</h2>
+
+<form method="post" style="max-width:720px;">
+  {% csrf_token %}
+
+  <fieldset style="border:1px solid #ddd; padding:12px; border-radius:6px; margin-bottom:12px;">
+    <legend>Owner</legend>
+    {{ form.owner }}
+    <p style="color:#666; margin:6px 0;">Choose whether this is a company machine (from your fleet) or a customer’s machine.</p>
+  </fieldset>
+
+  <div id="companyBlock" style="display:block; border:1px solid #eee; padding:12px; border-radius:6px; margin-bottom:12px;">
+    <h4 style="margin:0 0 8px 0;">Company (rental fleet) machine</h4>
+    {{ form.rental_machine.label_tag }}<br>
+    {{ form.rental_machine }}
+    <div style="color:#777; font-size:90%;">{{ form.rental_machine.help_text }}</div>
+    {% for e in form.rental_machine.errors %}<div style="color:#c62828;">{{ e }}</div>{% endfor %}
+  </div>
+
+  <div id="customerBlock" style="display:none; border:1px solid #eee; padding:12px; border-radius:6px; margin-bottom:12px;">
+    <h4 style="margin:0 0 8px 0;">Customer machine</h4>
+    {{ form.customer.label_tag }}<br>
+    {{ form.customer }}
+    <div style="color:#777; font-size:90%;">{{ form.customer.help_text }}</div>
+    {% for e in form.customer.errors %}<div style="color:#c62828;">{{ e }}</div>{% endfor %}
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;">
+      <div>
+        {{ form.external_brand.label_tag }}<br>
+        {{ form.external_brand }}
+      </div>
+      <div>
+        {{ form.external_model.label_tag }}<br>
+        {{ form.external_model }}
+      </div>
+    </div>
+    <div style="margin-top:8px;">
+      {{ form.external_serial.label_tag }}<br>
+      {{ form.external_serial }}
+    </div>
+    <p style="color:#666; margin:6px 0;">Optional identifiers for a customer’s own machine (brand/model/serial).</p>
+  </div>
+
+  <fieldset style="border:1px solid #ddd; padding:12px; border-radius:6px; margin-bottom:12px;">
+    <legend>Booking</legend>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+      <div>
+        {{ form.booking_date.label_tag }}<br>
+        {{ form.booking_date }}
+      </div>
+      <div>
+        {{ form.confirmed.label_tag }}<br>
+        {{ form.confirmed }}
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset style="border:1px solid #ddd; padding:12px; border-radius:6px; margin-bottom:12px;">
+    <legend>Status & Notes</legend>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+      <div>
+        {{ form.status.label_tag }}<br>
+        {{ form.status }}
+      </div>
+      <div>
+        {{ form.notes.label_tag }}<br>
+        {{ form.notes }}
+      </div>
+    </div>
+  </fieldset>
+
+  <button type="submit" style="background:#2196f3; color:#fff; padding:8px 12px; border:none; border-radius:4px;">
+    Create Job
+  </button>
+  <a href="{% url 'staff:service_jobs' %}" style="margin-left:8px;">Cancel</a>
+</form>
+
+{% block scripts %}
+<script>
+  function updateBlocks() {
+    const ownerChoice = document.querySelector('input[name="owner"]:checked')?.value;
+    const companyBlock = document.getElementById('companyBlock');
+    const customerBlock = document.getElementById('customerBlock');
+    if (ownerChoice === 'customer') {
+      companyBlock.style.display = 'none';
+      customerBlock.style.display = 'block';
+    } else {
+      companyBlock.style.display = 'block';
+      customerBlock.style.display = 'none';
+    }
+  }
+  document.addEventListener('change', function(e) {
+    if (e.target.name === 'owner') updateBlocks();
+  });
+  document.addEventListener('DOMContentLoaded', updateBlocks);
+</script>
+{% endblock %}
+{% endblock %}

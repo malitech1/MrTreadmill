@@ -1,53 +1,84 @@
 {% extends 'staff/base.html' %}
 {% block title %}Start New Hire{% endblock %}
-
 {% block content %}
-<h1>Start New Hire for {{ machine.brand }} {{ machine.model }}</h1>
+<h2>Start New Hire – {{ machine.brand }} {{ machine.model }} ({{ machine.serial_number }})</h2>
 
-<form method="post">
-    {% csrf_token %}
+<form method="post" style="max-width:640px;">
+  {% csrf_token %}
 
-    <!-- Existing customer selector -->
-    <div id="existing-customer">
-        <label for="customer">Select Existing Customer:</label>
-        <select name="customer">
-            <option value="">-- Choose Customer --</option>
-            {% for c in customers %}
-                <option value="{{ c.id }}">{{ c.first_name }} ({{ c.phone }})</option>
-            {% endfor %}
-        </select>
+  <fieldset style="margin-bottom:12px;">
+    <legend>Customer</legend>
+
+    <label style="margin-right:16px;">
+      <input type="radio" name="mode" value="existing" checked
+             onclick="toggleMode('existing')"> Use existing
+    </label>
+    <label>
+      <input type="radio" name="mode" value="new"
+             onclick="toggleMode('new')"> Add new
+    </label>
+
+    <!-- Existing -->
+    <div id="existing-block" style="margin-top:10px;">
+      <select name="customer" id="customer-select" required style="min-width:260px;">
+        <option value="">— Select existing —</option>
+        {% for c in customers %}
+          <option value="{{ c.id }}">{{ c.first_name }} {{ c.last_name }}{% if c.phone %} ({{ c.phone }}){% endif %}</option>
+        {% endfor %}
+      </select>
     </div>
 
-    <p><a href="#" onclick="toggleNewCustomer(); return false;">➕ Add New Customer</a></p>
-
-    <!-- New customer fields (hidden by default) -->
-    <div id="new-customer" style="display:none; border:1px solid #ccc; padding:10px; margin-bottom:10px;">
-        <h3>New Customer Details</h3>
-        <input type="hidden" name="add_customer" value="1">
-        <label>First Name:</label><input type="text" name="first_name"><br>
-        <label>Phone:</label><input type="text" name="phone"><br>
-        <label>Email:</label><input type="email" name="email"><br>
-        <label>Address:</label><input type="text" name="address"><br>
+    <!-- New -->
+    <div id="new-block" style="display:none; margin-top:10px; border:1px solid #ddd; padding:10px; border-radius:6px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <input name="first_name" id="first-name" placeholder="First name">
+        <input name="last_name"  id="last-name"  placeholder="Last name">
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px;">
+        <input name="phone"  placeholder="Phone">
+        <input name="email"  placeholder="Email" type="email">
+      </div>
+      <input name="suburb"  placeholder="Suburb"  style="width:100%; margin-top:8px;">
+      <input name="address" placeholder="Address" style="width:100%; margin-top:8px;">
     </div>
+  </fieldset>
 
-    <label>Start Date:</label>
-    <input type="date" name="start_date" required><br><br>
+  <fieldset style="margin-top:12px;">
+    <legend>Rental Details</legend>
+    <label>Start date: <input type="date" name="start_date" required></label>
+    <label style="margin-left:12px;">Due date: <input type="date" name="due_date" required></label>
+    <textarea name="notes" placeholder="Notes" rows="3" style="width:100%; margin-top:8px;"></textarea>
+  </fieldset>
 
-    <label>Due Date:</label>
-    <input type="date" name="due_date" required><br><br>
-
-    <label>Notes:</label>
-    <textarea name="notes"></textarea><br><br>
-
-    <button type="submit">Confirm Hire</button>
+  <button type="submit" style="background:#2196f3; color:#fff; padding:8px 12px; border:none; border-radius:4px; margin-top:12px;">
+    Start Hire
+  </button>
+  <a href="{% url 'staff:rental_detail' machine.id %}" style="margin-left:8px;">Cancel</a>
 </form>
 
-<p><a href="{% url 'staff:rental_detail' machine.id %}">Cancel</a></p>
-
+{% block scripts %}
 <script>
-function toggleNewCustomer() {
-    document.getElementById("new-customer").style.display =
-        document.getElementById("new-customer").style.display === "none" ? "block" : "none";
+function toggleMode(mode) {
+  const existing = document.getElementById('existing-block');
+  const customerSelect = document.getElementById('customer-select');
+  const newBlock = document.getElementById('new-block');
+  const firstName = document.getElementById('first-name');
+  const lastName = document.getElementById('last-name');
+
+  if (mode === 'existing') {
+    existing.style.display = '';
+    newBlock.style.display = 'none';
+    customerSelect.required = true;
+    firstName.required = false;
+    lastName.required = false;
+  } else {
+    existing.style.display = 'none';
+    newBlock.style.display = '';
+    customerSelect.required = false;
+    firstName.required = true;
+    lastName.required = true;
+  }
 }
 </script>
+{% endblock %}
 {% endblock %}

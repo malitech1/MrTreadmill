@@ -15,7 +15,9 @@ class Customer(models.Model):
     last_name = models.CharField(max_length=100)
     phone = models.CharField(max_length=20, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
-    address = models.TextField(blank=True, null=True)
+    street_address = models.TextField(blank=True, null=True)
+    suburb = models.TextField(blank=True, null=True)
+    postcode = models.TextField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -53,19 +55,40 @@ class Treadmill(models.Model):
         return f"{self.brand} {self.model} ({self.serial_number})"
 
 class Job(models.Model):
-    treadmill = models.ForeignKey(Treadmill, on_delete=models.CASCADE)
+    STATUS_CHOICES = [
+        ('to_assess', 'To be assessed'),
+        ('in_progress', 'In progress'),
+        ('complete', 'Complete'),
+        ('cancelled', 'Cancelled'),
+    ]
+
+    treadmill = models.ForeignKey(Treadmill, on_delete=models.CASCADE, null=True, blank=True)
     technician = models.ForeignKey(Technician, on_delete=models.SET_NULL, null=True)
     date_created = models.DateTimeField(auto_now_add=True)
     date_completed = models.DateTimeField(null=True, blank=True)
     notes = models.TextField(blank=True)
-    status = models.CharField(max_length=20, choices=[
-        ('pending', 'Pending'),
-        ('in_progress', 'In Progress'),
-        ('done', 'Done')
-    ])
+
+    # ✅ New: support booking, explicit status, association to our rental fleet and/or a customer
+    booking_date = models.DateField(null=True, blank=True)
+    confirmed = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='to_assess')
+
+    # Optional identifiers for a customer’s own machine
+    external_brand = models.CharField(max_length=100, blank=True)
+    external_model = models.CharField(max_length=100, blank=True)
+    external_serial = models.CharField(max_length=100, blank=True)
+
+    # If it’s a company (rental) machine, link here:
+    rental_machine = models.ForeignKey('RentalMachine', on_delete=models.SET_NULL, null=True, blank=True)
+
+    # If it’s a customer’s own machine, capture the customer:
+    customer = models.ForeignKey('Customer', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return f"Job #{self.id} - {self.treadmill.serial_number}"
+        # Show who/what the job is for at a glance
+        who = self.customer or self.rental_machine or self.treadmill
+        return f"Job #{self.pk} – {who}"
+
 
 class RentalMachine(models.Model):
     MACHINE_TYPES = [

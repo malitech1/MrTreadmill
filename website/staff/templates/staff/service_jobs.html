@@ -1,0 +1,95 @@
+{% extends 'staff/base.html' %}
+{% block title %}Service Jobs{% endblock %}
+
+{% block content %}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+  <h2>Service Jobs</h2>
+  <a href="{% url 'staff:service_job_create' %}"
+     style="background:#2196f3; color:#fff; padding:8px 12px; border-radius:5px; text-decoration:none; font-weight:bold;">
+    ➕ New Service Job
+  </a>
+</div>
+
+<div style="overflow-x:auto;">
+<table style="width:100%; border-collapse:collapse; background:white;">
+  <thead style="background:#f5f5f5;">
+    <tr>
+      <th style="padding:8px; text-align:left;">Whose Machine?</th>
+      <th style="padding:8px; text-align:left;">Brand / Model</th>
+      <th style="padding:8px; text-align:left;">Serial</th>
+      <th style="padding:8px; text-align:center;">QR</th>
+      <th style="padding:8px; text-align:left;">Booking Date</th>
+      <th style="padding:8px; text-align:center;">Confirmed</th>
+      <th style="padding:8px; text-align:left;">Status</th>
+      <th style="padding:8px; text-align:left;">Notes</th>
+      <th style="padding:8px; text-align:left;">View</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for job in jobs %}
+    {% comment %}
+      Determine display values:
+      - Company machine: prefer job.rental_machine
+      - Otherwise legacy job.treadmill
+      - Customer machine: show job.customer
+    {% endcomment %}
+    {% with rm=job.rental_machine tm=job.treadmill cust=job.customer %}
+    <tr style="border-bottom:1px solid #ddd;">
+      <td style="padding:8px;">
+        {% if cust %}
+          Customer – {{ cust.first_name }} {{ cust.last_name }}
+        {% else %}
+          Company
+        {% endif %}
+      </td>
+
+     <td style="padding:8px;">
+      {% if rm %}{{ rm.brand }} {{ rm.model }}
+      {% elif tm %}{{ tm.brand }} {{ tm.model }}
+      {% else %}{{ job.external_brand|default:"" }} {{ job.external_model|default:"" }}{% endif %}
+    </td>
+
+    <td style="padding:8px;">
+      {% if rm %}{{ rm.serial_number }}
+      {% elif tm %}{{ tm.serial_number }}
+      {% else %}{{ job.external_serial|default:"" }}{% endif %}
+    </td>
+
+      <td style="padding:8px; text-align:center;">
+        <a href="{% url 'staff:service_job_detail' job.id %}">
+          <img src="{% url 'staff:service_job_qr' job.id %}" alt="QR" width="50" height="50"
+               style="border:1px solid #ccc; border-radius:4px;">
+        </a>
+      </td>
+
+      <td style="padding:8px;">
+        {{ job.booking_date|default:"—" }}
+      </td>
+
+      <td style="padding:8px; text-align:center;">
+        {% if job.confirmed %}✅{% else %}—{% endif %}
+      </td>
+
+      <td style="padding:8px;">
+        {{ job.get_status_display }}
+      </td>
+
+      <td style="padding:8px; max-width:320px;">
+        {{ job.notes|default:"" }}
+      </td>
+
+      <td style="padding:8px;">
+        <a href="{% url 'staff:service_job_detail' job.id %}">Open</a>
+      </td>
+    </tr>
+    {% endwith %}
+    {% empty %}
+    <tr>
+      <td colspan="9" style="padding:12px; text-align:center; color:#777;">No service jobs yet.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}
